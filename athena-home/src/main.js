@@ -25,6 +25,18 @@ function indiaFirst() {
   return langs.some((l) => /^en-IN$/i.test(l) || /^hi(\b|-)/i.test(l));
 }
 
+// Each visitor sees only their own country's shop: 'in' = India (amazon.in), 'us' = USA & world (amazon.com).
+// ?country=in or ?country=us in the link forces it (for testing, or for a country-specific Linktree button).
+const COUNTRY = (() => {
+  const m = location.search.match(/[?&]country=(in|us)\b/i);
+  return m ? m[1].toLowerCase() : indiaFirst() ? 'in' : 'us';
+})();
+window.__country = COUNTRY;
+document.documentElement.dataset.country = COUNTRY;
+const hasLink = (it) => !!String((it.links || {})[COUNTRY] || '').trim();
+// wishes: only ones you can buy in your country. Gifted things stay: they are in her home for everyone.
+const forMyCountry = (items) => items.filter((it) => it.status === 'gifted' || hasLink(it));
+
 // ---------------- cards ----------------
 let ITEMS = [], ATHENA = {};
 function statusText(it) {
@@ -34,7 +46,7 @@ function statusText(it) {
 }
 function buyButtons(it) {
   const links = it.links || {};
-  const order = indiaFirst() ? ['in', 'us'] : ['us', 'in'];
+  const order = [COUNTRY];
   const label = { us: '🇺🇸 Get it (USA & world)', in: '🇮🇳 Get it (India)' };
   const out = [];
   for (const k of order) {
@@ -63,7 +75,7 @@ function openCard(it) {
   const b = buyButtons(it);
   const lead = document.createElement('div');
   lead.className = 'lead';
-  lead.textContent = b.length ? (it.status === 'gifted' ? '💝 Get one for your little one' : '🎁 Gift it to Athena, or get one for your little one') : 'Shop link coming soon.';
+  lead.textContent = b.length ? (it.status === 'gifted' ? '💝 Get one for your little one' : '🎁 Gift it to Athena, or get one for your little one') : (it.status === 'gifted' ? '✨ She has it at home now!' : 'Shop link coming soon.');
   btns.replaceChildren(lead, ...b);
   // gifted clothes: visitors can dress Athena in them
   if (it.status === 'gifted' && outfitFor(it) && app) {
@@ -121,9 +133,10 @@ let app = null;
 function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
 
 async function start() {
-  const [items, roomsCfg, athena, family] = await Promise.all([
+  const [allItems, roomsCfg, athena, family] = await Promise.all([
     getJSON('items.json'), getJSON('rooms.json'), getJSON('athena.json'), getJSON('family.json'),
   ]);
+  const items = forMyCountry(allItems);
   ITEMS = items; ATHENA = athena;
   setP(65);
   // top bar
@@ -772,5 +785,5 @@ start().catch((err) => {
   console.error(err);
   clearInterval(window.__fake);
   $('load-err').hidden = false;
-  if (!ITEMS.length) getJSON('items.json').then((x) => { ITEMS = x; }).catch(() => {});
+  if (!ITEMS.length) getJSON('items.json').then((x) => { ITEMS = forMyCountry(x); }).catch(() => {});
 });

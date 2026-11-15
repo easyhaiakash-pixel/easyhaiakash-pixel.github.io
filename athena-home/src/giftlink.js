@@ -54,6 +54,10 @@ function show(r) {
 
 export function initGiftLink() {
   const sheet = $('giftlink'); if (!sheet) return;
+  // show only the visitor's own Amazon (country is set by main.js on <html data-country>)
+  const c = document.documentElement.dataset.country || 'us';
+  sheet.querySelectorAll('.gl-shop a').forEach((a) => { a.hidden = !a.href.includes(c === 'in' ? 'amazon.in' : 'amazon.com'); });
+  $('gl-in').placeholder = c === 'in' ? 'Paste an amazon.in link' : 'Paste an amazon.com link';
   const open = () => { document.querySelectorAll('.sheet').forEach((s) => (s.hidden = true)); sheet.hidden = false; $('gl-in').focus({ preventScroll: true }); };
   $('gl-open').addEventListener('click', open);
   sheet.querySelector('[data-close]').addEventListener('click', () => (sheet.hidden = true));
