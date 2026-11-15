@@ -4,6 +4,7 @@
 import { THREE, Kit, G, plane, canvasTex, C2, blobTex } from './kit.js';
 import * as TX from './textures.js';
 import { tint } from './items.js';
+import * as DC from './decor.js';
 
 export const DOOR = { z0: 0.15, z1: 1.35, h: 2.2 };
 
@@ -269,6 +270,12 @@ const BUILD = {
       k.add(G.cyl(0.3, 0.3, 0.05, 28), '#ffc9d8', { r: [Math.PI / 2, 0, 0], s: [0.8, 1, 1.2] });
       k.add(G.cyl(0.25, 0.25, 0.02, 28), '#dff2ff', { p: [0, 0, 0.025], r: [Math.PI / 2, 0, 0], s: [0.8, 1, 1.2], line: false });
     });
+    // extra cute: fairy lights over the bed, star mobile, balloons, rainbow, plush bunny
+    DC.fairyLights(k, group, bx0 + 0.05, bx1 - 0.12, 1.66, bz + 0.05, 0.1, 0.17);
+    DC.mobile(k, group, [bcx + 0.35, 2.95, -0.95]);
+    DC.balloons(k, [bx0 - 0.12, 0.66, bzF - 0.05]);
+    DC.rainbow(k, [ctx.W / 2 - 0.02, 2.2, -0.62], -Math.PI / 2, 0.9);
+    DC.bunny(k, [bx1 - 0.55, 0.53, bcz + 0.18], -0.4);
   },
 
   living(k, ctx, group) {
@@ -338,6 +345,10 @@ const BUILD = {
       k.add(G.heart(0.07, 0.02), '#ff8fb0', { p: [0.05, 0.12, 0], lw: 0.007 });
     });
     bunting(k, -2.9, 2.9, 3.05, bz + 0.06, 0.15);
+    // extra cute: fairy lights behind the sofa, balloons on the sofa arm, a bunny on the sofa
+    DC.fairyLights(k, group, sx - sw / 2 + 0.05, sx + sw / 2 - 0.05, 1.36, bz + 0.05, 0.06, 0.19);
+    DC.balloons(k, [sx - sw / 2 + 0.05, 0.72, bz + 0.62], ['#9fdcff', '#ff9fc4', '#b8f0c4'], 1.25);
+    DC.bunny(k, [sx - 0.25, 0.49, bz + 0.5], 0.2, '#ffe9f0', '#ffb3c8');
   },
 
   kitchen(k, ctx, group) {
@@ -444,6 +455,10 @@ const BUILD = {
     k.add(G.tor(0.2, 0.02, 6, 20), '#d9a36a', { p: [2.4, 0.2, 0.55], r: [Math.PI / 2, 0, 0], line: false });
     const fruit = ctx.part([2.4, 0.24, 0.55], (kk) => [['#ff8a8a', -0.06, 0], ['#ffd76a', 0.07, 0.03], ['#a8e2a8', 0, -0.07]].forEach(([c, dx, dz]) => kk.add(G.sph(0.07, 12, 10), c, { p: [dx, 0, dz], lw: 0.008 })));
     ctx.touch({ name: 'basket', box: [2.4, 0.15, 0.55, 0.45, 0.35, 0.45], say: 'Play food! 🍋', act: 'reach', react: 'hop', target: fruit, emoji: '🍋' });
+    // extra cute: fairy lights over the counter, cupcakes on the table, a bear cookie jar
+    DC.fairyLights(k, group, cx0 + 0.1, cx1 - 0.1, 2.66, bz + 0.05, 0.08, 0.2);
+    DC.cupcakes(k, [tx + 0.2, 0.775, tz + 0.18]);
+    DC.cookieJar(k, [-2.45, ch + 0.03, bz + 0.3]);
   },
 };
 
