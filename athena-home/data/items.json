@@ -114,5 +114,39 @@
       "in": "https://link.amazon/B08Ffu05N",
       "us": ""
     }
+  },
+  {
+    "id": "birthday-sweatshirt-set",
+    "name": "Pink birthday sweatshirt set",
+    "emoji": "🎀",
+    "status": "wish",
+    "giftedOnDay": null,
+    "room": "living",
+    "spot": "back-left",
+    "model": "outfit-set",
+    "variant": "sweatshirt",
+    "color": "#f9b9c6",
+    "note": "A pink \"The Birthday Girl\" sweatshirt with ruffle sleeves, a pom-pom tutu and a little heart bag.",
+    "links": {
+      "in": "",
+      "us": "https://www.amazon.com/dp/B0FJWQTMZH?tag=onelifegifts-20"
+    },
+    "stand": true
+  },
+  {
+    "id": "unicorn-makeup-case",
+    "name": "Unicorn makeup case",
+    "emoji": "💄",
+    "status": "wish",
+    "giftedOnDay": null,
+    "room": "bedroom",
+    "spot": "rug",
+    "model": "makeup-case",
+    "color": "#ffc3dc",
+    "note": "A sparkly rainbow case full of pretend make-up, her first beauty kit!",
+    "links": {
+      "in": "",
+      "us": "https://www.amazon.com/dp/B0D3LCWYNL?tag=onelifegifts-20"
+    }
   }
 ]

@@ -184,6 +184,11 @@ async function start() {
     const along = new THREE.Vector3(...(spot.along || [1, 0, 0])).normalize();
     list.forEach((it, i) => {
       const g = buildItem(it);
+      // on a crowded spot, keep each tap box narrower than the gap so neighbours never steal taps
+      if (list.length > 1 && spot.gap) {
+        const hit = g.getObjectByName('hit'), w = hit.geometry.parameters.width, maxW = spot.gap * 0.96;
+        if (w > maxW) hit.scale.x = maxW / w;
+      }
       const off = (i - (list.length - 1) / 2) * (spot.gap || 0.5);
       const box = g.userData.box;
       const p = new THREE.Vector3(...spot.pos).addScaledVector(along, off);
