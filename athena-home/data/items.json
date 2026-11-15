@@ -1,0 +1,118 @@
+[
+  {
+    "id": "red-party-frock",
+    "name": "Red party frock",
+    "emoji": "👗",
+    "status": "wish",
+    "giftedOnDay": null,
+    "room": "bedroom",
+    "spot": "wardrobe",
+    "model": "dress",
+    "variant": "tutu",
+    "color": "#9b1c2c",
+    "note": "A deep red party frock with a big tutu skirt. Gift it and she can wear it on her 3rd birthday!",
+    "links": {
+      "in": "https://link.amazon/B04EufOyt",
+      "us": ""
+    }
+  },
+  {
+    "id": "knit-birthday-dress",
+    "name": "Knitted birthday dress",
+    "emoji": "🎂",
+    "status": "wish",
+    "giftedOnDay": null,
+    "room": "bedroom",
+    "spot": "wardrobe",
+    "model": "dress",
+    "variant": "knit",
+    "color": "#f7b8c8",
+    "note": "A soft knitted dress for her birthday party, with a little cream bow.",
+    "links": {
+      "in": "https://link.amazon/B09VEpOSE",
+      "us": ""
+    }
+  },
+  {
+    "id": "birthday-tutu-set",
+    "name": "Birthday Girl tutu set",
+    "emoji": "🎂",
+    "status": "wish",
+    "giftedOnDay": null,
+    "room": "bedroom",
+    "spot": "wardrobe",
+    "model": "outfit-set",
+    "color": "#ff8fb8",
+    "note": "A \"Birthday Girl\" top with a pink pom-pom tutu and a matching headband.",
+    "links": {
+      "in": "",
+      "us": "https://link.amazon/B07qTS02Q"
+    }
+  },
+  {
+    "id": "glitter-unicorn",
+    "name": "Glitter unicorn",
+    "emoji": "🦄",
+    "status": "wish",
+    "giftedOnDay": null,
+    "room": "bedroom",
+    "spot": "bed",
+    "model": "plush",
+    "variant": "unicorn",
+    "color": "#fff4fb",
+    "note": "A sparkly unicorn with a rainbow mane, to hug at bedtime.",
+    "links": {
+      "in": "https://link.amazon/B06wk48lI",
+      "us": ""
+    }
+  },
+  {
+    "id": "musical-elephant",
+    "name": "Glowing musical elephant",
+    "emoji": "🌈",
+    "status": "wish",
+    "giftedOnDay": null,
+    "room": "bedroom",
+    "spot": "bed",
+    "model": "plush",
+    "variant": "elephant",
+    "color": "#c8b6ff",
+    "note": "A rainbow elephant that glows softly and plays sleepy songs.",
+    "links": {
+      "in": "",
+      "us": "https://link.amazon/B0e0zZa6Q"
+    }
+  },
+  {
+    "id": "pink-doctor-kit",
+    "name": "Pink doctor kit",
+    "emoji": "👩‍⚕️",
+    "status": "wish",
+    "giftedOnDay": null,
+    "room": "bedroom",
+    "spot": "rug",
+    "model": "doctor-kit",
+    "color": "#ff9fc0",
+    "note": "A pink doctor set with a stethoscope. Maybe she becomes a doctor one day?",
+    "links": {
+      "in": "https://link.amazon/B04u0Mmtd",
+      "us": ""
+    }
+  },
+  {
+    "id": "beauty-trolley",
+    "name": "Beauty trolley",
+    "emoji": "💄",
+    "status": "wish",
+    "giftedOnDay": null,
+    "room": "bedroom",
+    "spot": "floor-left",
+    "model": "makeup-trolley",
+    "color": "#ffb6d5",
+    "note": "A little pink make-up trolley with a mirror, for pretend play.",
+    "links": {
+      "in": "https://link.amazon/B08Ffu05N",
+      "us": ""
+    }
+  }
+]

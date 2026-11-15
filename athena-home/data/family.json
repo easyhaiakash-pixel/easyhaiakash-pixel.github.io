@@ -1,0 +1,37 @@
+{
+  "members": [
+    {
+      "id": "athena",
+      "name": "Athena",
+      "room": "bedroom",
+      "pos": [
+        0.55,
+        0.01,
+        0.5
+      ],
+      "turn": -0.15
+    },
+    {
+      "id": "mom",
+      "name": "Mom",
+      "room": "living",
+      "pos": [
+        -0.5,
+        0.47,
+        -1.85
+      ],
+      "turn": 0
+    },
+    {
+      "id": "dad",
+      "name": "Dad",
+      "room": "living",
+      "pos": [
+        0.35,
+        0.47,
+        -1.85
+      ],
+      "turn": 0
+    }
+  ]
+}
