@@ -102,3 +102,26 @@ h2 { margin: 0; font-size: 22px; line-height: 1.1; }
   .rooms button { font-size: 16px; flex-direction: row; justify-content: center; gap: 6px; padding: 9px 10px 8px; max-width: 190px; }
   .chip { font-size: 13px; }
 }
+
+/* ---------- gift anything (src/giftlink.js) ---------- */
+.gl-open { position: absolute; right: 10px; top: calc(104px + var(--safe-t)); z-index: 6; border: 3px solid var(--ol); background: linear-gradient(#ffb3c8, #ff8fb4); color: #fff; border-radius: 16px; padding: 7px 12px 6px; font: 15px 'LilitaOne', sans-serif; -webkit-text-stroke: 3px var(--ol); paint-order: stroke fill; box-shadow: 0 3px 0 rgba(107,64,70,.25); cursor: pointer; animation: glbob 2.4s ease-in-out infinite; }
+@keyframes glbob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+.giftlink h2 { margin: 2px 40px 6px 0; font-size: 22px; }
+.giftlink .small { font-size: 13px; line-height: 1.35; margin: 0 0 10px; }
+.gl-row { display: flex; gap: 6px; }
+.gl-row input { flex: 1; min-width: 0; font-size: 16px; padding: 11px 12px; border: 3px solid var(--ol); border-radius: 16px; background: #fff; color: var(--ol); outline: none; }
+.gl-row input:focus { border-color: #ff6f9e; }
+.gl-paste { width: 48px; flex: none; border: 3px solid var(--ol); border-radius: 16px; background: #fff; font-size: 20px; cursor: pointer; }
+.gl-go { display: block; width: 100%; margin: 8px 0 0; border: 3px solid var(--ol); border-radius: 18px; background: #ff6f9e; color: #fff; padding: 11px; font: 19px 'LilitaOne', sans-serif; -webkit-text-stroke: 3px var(--ol); paint-order: stroke fill; box-shadow: 0 4px 0 rgba(107,64,70,.25); cursor: pointer; }
+.gl-go:active { transform: translateY(2px); }
+.gl-err { margin: 8px 2px 0; padding: 8px 10px; border-radius: 12px; background: #fff0f0; border: 2px dashed #e0334f; font-size: 13px; }
+.gl-err[hidden], .gl-out[hidden] { display: none; }
+.gl-out { margin-top: 10px; padding: 10px; border: 3px solid var(--ol); border-radius: 18px; background: linear-gradient(#fff6d6, #ffe7a3); }
+.gl-flag { font: 14px 'LilitaOne', sans-serif; margin-bottom: 4px; }
+.gl-url { font-size: 12px; word-break: break-all; background: #fff; border-radius: 10px; padding: 6px 8px; border: 2px solid rgba(107,64,70,.35); user-select: all; -webkit-user-select: all; }
+.gl-out .btns { display: flex; gap: 6px; margin-top: 8px; }
+.gl-buy, .gl-copy { flex: 1; text-align: center; text-decoration: none; border: 3px solid var(--ol); border-radius: 16px; padding: 9px 6px; font: 15px 'LilitaOne', sans-serif; cursor: pointer; }
+.gl-buy { background: #8cc7ff; color: #fff; -webkit-text-stroke: 3px var(--ol); paint-order: stroke fill; }
+.gl-copy { background: #fff; color: var(--ol); }
+.gl-shop { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; font-size: 13px; }
+.gl-shop a { color: var(--ol); text-decoration: none; border: 2.5px solid var(--ol); border-radius: 12px; padding: 4px 9px; background: #fff; font: 13px 'LilitaOne', sans-serif; }

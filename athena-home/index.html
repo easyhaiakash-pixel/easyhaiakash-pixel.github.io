@@ -59,6 +59,34 @@
     <p class="disclosure">As an Amazon Associate I earn from qualifying purchases.</p>
   </div>
 
+  <!-- gift anything: paste any Amazon link -> our link (src/giftlink.js) -->
+  <button class="gl-open" id="gl-open">🔗 Gift her anything</button>
+  <div class="sheet giftlink" id="giftlink" role="dialog" aria-modal="true" aria-labelledby="gl-title" hidden>
+    <button class="x" data-close aria-label="Close">✕</button>
+    <h2 id="gl-title">🎁 Gift Athena anything</h2>
+    <p class="small">Found something on Amazon for your little one (or for Athena)? Paste the link here and buy through Athena's link. It supports Athena's story, and we gift her the same thing in her home 💝</p>
+    <div class="gl-row">
+      <input id="gl-in" type="url" inputmode="url" placeholder="Paste an amazon.com or amazon.in link" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button class="gl-paste" id="gl-paste" aria-label="Paste">📋</button>
+    </div>
+    <button class="gl-go" id="gl-go">Get Athena's link 💝</button>
+    <p class="gl-err" id="gl-err" hidden></p>
+    <div class="gl-out" id="gl-out" hidden>
+      <div class="gl-flag" id="gl-flag"></div>
+      <div class="gl-url" id="gl-url"></div>
+      <div class="btns">
+        <a class="gl-buy" id="gl-buy" href="#" target="_blank" rel="noopener sponsored">🛒 Buy on Amazon</a>
+        <button class="gl-copy" id="gl-copy">📋 Copy link</button>
+      </div>
+    </div>
+    <div class="gl-shop">
+      <span>Or shop anything:</span>
+      <a href="https://www.amazon.com/?tag=onelifegifts-20" target="_blank" rel="noopener sponsored">🇺🇸 amazon.com</a>
+      <a href="https://www.amazon.in/?tag=onelifegifts-21" target="_blank" rel="noopener sponsored">🇮🇳 amazon.in</a>
+    </div>
+    <p class="disclosure">As an Amazon Associate I earn from qualifying purchases.</p>
+  </div>
+
   <!-- loading screen: Athena waving -->
   <div id="loader">
     <svg class="wave-athena" viewBox="0 0 200 220" aria-hidden="true">
@@ -93,6 +121,7 @@
   })();
 </script>
 <script type="module" src="src/main.js"></script>
+<script type="module">import { initGiftLink } from './src/giftlink.js'; initGiftLink();</script>
 <!-- Vercel Web Analytics (visitor counts in the Vercel dashboard). Only runs on the Vercel site. -->
 <script>
   if (/\.vercel\.app$/.test(location.hostname)) {

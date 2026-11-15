@@ -720,7 +720,7 @@ async function start() {
   requestAnimationFrame(frame);
   setTimeout(() => $('loader').classList.add('done'), 200);
   window.__ready = true;
-  window.__app = { focusItem, goRoom, itemObjs, camera, walkTo, touchTargets, touchThing, user, whatIs, walker, athena: athenaP && athenaP.obj, pan, current: () => current, nav: floorMap, look: (x, y, z, d, yaw = 0, pitch = 0.15) => { tween = null; pan.x = 0; Object.assign(cam, { tx: x, ty: y, tz: z, dist: d, yaw, pitch, off: 0 }); } };
+  window.__app = { scene, focusItem, goRoom, itemObjs, camera, walkTo, touchTargets, touchThing, user, whatIs, walker, athena: athenaP && athenaP.obj, pan, current: () => current, nav: floorMap, look: (x, y, z, d, yaw = 0, pitch = 0.15) => { tween = null; pan.x = 0; Object.assign(cam, { tx: x, ty: y, tz: z, dist: d, yaw, pitch, off: 0 }); } };
   // open an item straight from a link: ?item=glitter-unicorn
   const q = new URLSearchParams(location.search).get('item');
   if (q) setTimeout(() => focusItem(q), 400);

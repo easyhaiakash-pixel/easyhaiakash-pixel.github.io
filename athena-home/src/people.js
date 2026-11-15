@@ -91,13 +91,13 @@ function faceMesh(r, tex) {
 // ---------- Athena, age 3 ----------
 export function buildAthena() {
   const root = new THREE.Group(); root.name = 'athena';
-  const body = new THREE.Group(); root.add(body);
+  const body = new THREE.Group(); body.name = 'body'; root.add(body);
   const k = new Kit(0.012);
   // shoes + legs
   // legs on hip pivots so she can walk
   const legs = [];
   for (const s of [-1, 1]) {
-    const hip = new THREE.Group(); hip.position.set(s * 0.065, 0.22, 0);
+    const hip = new THREE.Group(); hip.name = s < 0 ? 'hipL' : 'hipR'; hip.position.set(s * 0.065, 0.22, 0);
     const l = new Kit(0.012);
     l.add(G.cap(0.052, 0.12), SKIN, { p: [0, -0.09, 0] });
     l.add(G.sph(0.07, 16, 12), '#ffb7c9', { p: [s * 0.003, -0.175, 0.025], s: [0.95, 0.6, 1.25] });
@@ -113,7 +113,7 @@ export function buildAthena() {
   // arms (pivot at shoulder so they can wave)
   const arms = [];
   for (const s of [-1, 1]) {
-    const pivot = new THREE.Group(); pivot.position.set(s * 0.125, 0.5, 0);
+    const pivot = new THREE.Group(); pivot.name = s < 0 ? 'armL' : 'armR'; pivot.position.set(s * 0.125, 0.5, 0);
     const a = new Kit(0.011);
     a.add(G.cap(0.042, 0.13), '#fff1ea', { p: [0, -0.1, 0] });
     a.add(G.sph(0.05, 14, 10), SKIN, { p: [0, -0.2, 0.01] });
@@ -123,7 +123,7 @@ export function buildAthena() {
   }
 
   // head
-  const head = new THREE.Group(); head.position.set(0, 0.6, 0); body.add(head);
+  const head = new THREE.Group(); head.name = 'head'; head.position.set(0, 0.6, 0); body.add(head);
   const R = 0.29;
   const h = new Kit(0.013);
   h.add(G.sph(R, 32, 24), SKIN, { p: [0, R * 0.92, 0] });
@@ -144,7 +144,7 @@ export function buildAthena() {
   });
   const hm = h.build(); head.add(hm);
   const open = faceTex('athena', false), shut = faceTex('athena', true);
-  const face = faceMesh(R, open); face.position.set(0, R * 0.92, 0); head.add(face);
+  const face = faceMesh(R, open); face.name = 'face'; face.userData.shutTex = shut; face.position.set(0, R * 0.92, 0); head.add(face);
 
   let nextBlink = 2, nextWave = 4, waveT = -1, walkW = 0, stepT = 0;
   let actName = null, actT = 0;
@@ -202,7 +202,7 @@ export function buildAthena() {
 // ---------- Mom, sitting ----------
 export function buildMom() {
   const root = new THREE.Group(); root.name = 'mom';
-  const body = new THREE.Group(); root.add(body);
+  const body = new THREE.Group(); body.name = 'body'; root.add(body);
   const k = new Kit(0.013);
   const TOP = '#c8b4f4', HAIR = '#93593a';
   // legs (sitting): thighs forward, shins down
@@ -221,7 +221,7 @@ export function buildMom() {
   }
   body.add(k.build());
 
-  const head = new THREE.Group(); head.position.set(0, 0.52, 0); body.add(head);
+  const head = new THREE.Group(); head.name = 'head'; head.position.set(0, 0.52, 0); body.add(head);
   const R = 0.25;
   const h = new Kit(0.013);
   // long hair behind
@@ -234,7 +234,7 @@ export function buildMom() {
   h.add(G.tor(0.17, 0.012, 6, 24, Math.PI * 0.7), '#c98a64', { p: [0, R * 1.45, 0.06], r: [-0.6, 0, Math.PI * 0.15], line: false });
   head.add(h.build());
   const open = faceTex('mom', false), shut = faceTex('mom', true);
-  const face = faceMesh(R, open); face.position.set(0, R * 0.95, 0); head.add(face);
+  const face = faceMesh(R, open); face.name = 'face'; face.userData.shutTex = shut; face.position.set(0, R * 0.95, 0); head.add(face);
 
   let nextBlink = 1.5, happyUntil = 0;
   root.userData.update = (t) => {
@@ -254,7 +254,7 @@ export function buildMom() {
 // ---------- Dad, sitting (same look as the style test: short dark hair, round glasses, mint sweater) ----------
 export function buildDad() {
   const root = new THREE.Group(); root.name = 'dad';
-  const body = new THREE.Group(); root.add(body);
+  const body = new THREE.Group(); body.name = 'body'; root.add(body);
   const k = new Kit(0.013);
   const TOP = '#9fdcc8', HAIR = '#5a3a2c', PANTS = '#8fa3c8';
   for (const s of [-1, 1]) {
@@ -271,7 +271,7 @@ export function buildDad() {
   k.add(G.sph(0.062, 14, 10), SKIN, { p: [-0.55, 0.6, -0.14] });
   body.add(k.build());
 
-  const head = new THREE.Group(); head.position.set(0, 0.55, 0); body.add(head);
+  const head = new THREE.Group(); head.name = 'head'; head.position.set(0, 0.55, 0); body.add(head);
   const R = 0.26;
   const h = new Kit(0.013);
   h.add(G.sph(R, 30, 22), SKIN, { p: [0, R * 0.95, 0] });
@@ -288,7 +288,7 @@ export function buildDad() {
   h.add(G.tor(R * 0.08, 0.008, 5, 12, Math.PI), '#4a2a2c', { p: [0, ey + 0.005, ez + 0.01], line: false });
   head.add(h.build());
   const open = faceTex('dad', false), shut = faceTex('dad', true);
-  const face = faceMesh(R, open); face.position.set(0, R * 0.95, 0); head.add(face);
+  const face = faceMesh(R, open); face.name = 'face'; face.userData.shutTex = shut; face.position.set(0, R * 0.95, 0); head.add(face);
 
   let nextBlink = 2.5, happyUntil = 0;
   root.userData.update = (t) => {
