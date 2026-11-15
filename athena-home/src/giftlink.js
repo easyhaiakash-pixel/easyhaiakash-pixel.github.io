@@ -2,8 +2,22 @@
 // Works in the browser only (no server). Reads the 10-letter product code (ASIN) from the link
 // and builds a clean link with our tag. amazon.com -> US tag, amazon.in -> India tag.
 const TAGS = { 'amazon.com': 'onelifegifts-20', 'amazon.in': 'onelifegifts-21' };
-const SHORT = /(^|\.)(amzn\.to|amzn\.in|amzn\.eu|amzn\.asia|a\.co|link\.amazon)$/i;
+const SHORT = /(^|\.)(amzn\.to|amzn\.in|amzn\.eu|amzn\.asia|a\.co|link\.amazon|amzlinks\.in|amzlink\.to)$/i;
 const $ = (id) => document.getElementById(id);
+// the short-link opener runs on the Vercel copy of the site (api/resolve.js); the GitHub copy calls it there
+const API = /\.vercel\.app$/.test(location.hostname) ? '' : 'https://athenas-home.vercel.app';
+export const isShort = (raw) => { const m = String(raw || '').match(/https?:\/\/\S+/i); try { return SHORT.test(new URL(m ? m[0] : 'https://' + String(raw).trim()).hostname.replace(/^www\./, '')); } catch (e) { return false; } };
+
+async function resolveAndMake(raw) {
+  if (!isShort(raw)) return makeLink(raw);
+  const m = String(raw).match(/https?:\/\/\S+/i), short = m ? m[0] : 'https://' + String(raw).trim();
+  try {
+    const r = await fetch(`${API}/api/resolve?u=${encodeURIComponent(short)}`);
+    const j = await r.json();
+    if (j.url) return makeLink(j.url);
+  } catch (e) { }
+  return { err: "We couldn't open that short link. Open it, then copy the long link from the top of the browser and paste it here." };
+}
 
 export function makeLink(raw) {
   let s = (raw || '').trim();
@@ -21,6 +35,13 @@ export function makeLink(raw) {
   return { site, asin, url: `https://www.${site}/dp/${asin}/?tag=${TAGS[site]}` };
 }
 
+let busy = 0;
+async function go(raw) {
+  const n = ++busy, err = $('gl-err');
+  if (isShort(raw)) { $('gl-out').hidden = true; err.hidden = false; err.textContent = '⏳ Opening the short link…'; }
+  const r = await resolveAndMake(raw);
+  if (n === busy) show(r);
+}
 function show(r) {
   const out = $('gl-out'), err = $('gl-err');
   err.hidden = !r.err; err.textContent = r.err || '';
@@ -36,11 +57,11 @@ export function initGiftLink() {
   const open = () => { document.querySelectorAll('.sheet').forEach((s) => (s.hidden = true)); sheet.hidden = false; $('gl-in').focus({ preventScroll: true }); };
   $('gl-open').addEventListener('click', open);
   sheet.querySelector('[data-close]').addEventListener('click', () => (sheet.hidden = true));
-  $('gl-go').addEventListener('click', () => show(makeLink($('gl-in').value)));
-  $('gl-in').addEventListener('keydown', (e) => { if (e.key === 'Enter') show(makeLink($('gl-in').value)); });
-  $('gl-in').addEventListener('paste', () => setTimeout(() => show(makeLink($('gl-in').value)), 0));
+  $('gl-go').addEventListener('click', () => go($('gl-in').value));
+  $('gl-in').addEventListener('keydown', (e) => { if (e.key === 'Enter') go($('gl-in').value); });
+  $('gl-in').addEventListener('paste', () => setTimeout(() => go($('gl-in').value), 0));
   $('gl-paste').addEventListener('click', async () => {
-    try { const v = await navigator.clipboard.readText(); $('gl-in').value = v; show(makeLink(v)); }
+    try { const v = await navigator.clipboard.readText(); $('gl-in').value = v; go(v); }
     catch (e) { $('gl-in').focus(); }
   });
   $('gl-copy').addEventListener('click', async () => {
