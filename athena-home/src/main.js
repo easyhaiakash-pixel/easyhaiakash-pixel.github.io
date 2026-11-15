@@ -266,7 +266,12 @@ async function start() {
       }
       // camera follows her when she walks into another room
       const rid = roomAtX(a.position.x);
-      if (walker.follow && rid === walker.dest && rid !== current && !focused) goRoom(rid);
+      if (walker.follow && rid !== current && !focused) {
+        // she crossed a doorway: make that room "current" without a camera jump (the pan carries on)
+        const dx = roomX(rid) - roomX(current);
+        setActive(rid); cam.tx += dx; pan.x -= dx;
+        if (tween) { tween.from.tx += dx; tween.to.tx += dx; }
+      }
     } else if (walker.face) {
       wantYaw = Math.atan2(walker.face[0] - a.position.x, walker.face[1] - a.position.z);
     } else {
@@ -282,7 +287,15 @@ async function start() {
   function walkToRoom(id) {
     const r = house.rooms.find((x) => x.room.id === id);
     const spot = r.room.standAt || [0.3, 0.7];
-    walkTo(r.x + spot[0], spot[1], { follow: false });
+    walkTo(r.x + spot[0], spot[1], { follow: true });
+  }
+  // room buttons / door chips: Athena walks there and the camera walks with her
+  function travel(id) {
+    if (!athenaP) { goRoom(id); return; }
+    const here = roomAtX(athenaP.obj.position.x);
+    if (here === id && current === id && !focused) { walkToRoom(id); return; }
+    goRoom(here); // look at her first (also closes any item view)
+    walkToRoom(id);
   }
 
   // ----- labels (DOM chips that follow items and doors) -----
@@ -306,7 +319,7 @@ async function start() {
         const d = document.createElement('div');
         d.className = 'chip door';
         d.textContent = side > 0 ? `${to.short || to.name} ${to.emoji || ''} ›` : `‹ ${to.emoji || ''} ${to.short || to.name}`;
-        d.addEventListener('click', (ev) => { ev.stopPropagation(); goRoom(to.id); walkToRoom(to.id); });
+        d.addEventListener('click', (ev) => { ev.stopPropagation(); travel(to.id); });
         labels.append(d);
         doorChips.push({ d, from: from.id, pos, side });
       }
@@ -321,7 +334,7 @@ async function start() {
     b.innerHTML = `<span class="em"></span><span class="nm"></span>`;
     b.querySelector('.em').textContent = hr.room.emoji || '🏠';
     b.querySelector('.nm').textContent = hr.room.short || hr.room.name;
-    b.onclick = () => { closeSheets(true); goRoom(hr.room.id); walkToRoom(hr.room.id); };
+    b.onclick = () => { closeSheets(true); travel(hr.room.id); };
     nav.append(b);
   }
   const gw = document.createElement('button');
@@ -333,6 +346,25 @@ async function start() {
   // ---------------- camera ----------------
   const cam = { tx: 0, ty: 1.3, tz: -0.4, dist: 10, yaw: 0, pitch: 0.2, off: 0 };
   let tween = null;
+  // camera pan that keeps Athena on screen (phones show only part of a room)
+  const pan = { x: 0 };
+  const roomX = (id) => (house.rooms.find((r) => r.room.id === id) || house.rooms[0]).x;
+  function stepPan(dt) {
+    if (!athenaP || !current) return;
+    let want = 0;
+    if (!focused && (!tween || walker.path)) {
+      const ax = athenaP.obj.position.x - roomX(current);
+      const portrait = camera.aspect < 0.85;
+      // how far the camera may slide from the room centre: phones about to the walls, desktop shows the whole room
+      const lim = walker.path && walker.follow ? house.W / 2 + house.T : (portrait ? house.W / 2 - 1.4 : 0);
+      // only when she is in the room we are looking at (or walking with the camera)
+      const inRoom = Math.abs(ax) < house.W / 2 + house.T / 2;
+      if ((walker.path && walker.follow) || (!walker.path && inRoom)) want = THREE.MathUtils.clamp(ax, -lim, lim);
+    }
+    pan.x += (want - pan.x) * Math.min(1, dt * (walker.path ? 4 : 2.5));
+  }
+  // fold the pan into the camera before a tween so nothing jumps
+  function bakePan() { cam.tx += pan.x; pan.x = 0; }
   const user = { yaw: 0, pitch: 0, zoom: 1 };
   let current = null, focused = null;
 
@@ -352,6 +384,7 @@ async function start() {
     return { tx: wp.x, ty: wp.y, tz: wp.z, dist: portrait ? 5.0 : 4.6, yaw: e.r.room.id === current ? cam.yaw * 0.4 : 0, pitch: 0.22, off: portrait ? 0.2 : 0.12 };
   }
   function tweenTo(v, dur = 1.0) {
+    bakePan();
     tween = { from: { ...cam }, to: v, t: 0, dur };
   }
   function setActive(id) {
@@ -362,7 +395,7 @@ async function start() {
     focused = null; user.yaw = 0; user.pitch = 0; user.zoom = 1;
     setActive(id);
     const v = roomView(id);
-    if (instant) Object.assign(cam, v); else tweenTo(v);
+    if (instant) { pan.x = 0; Object.assign(cam, v); } else tweenTo(v);
   }
   function focusItem(id) {
     const e = itemObjs.find((x) => x.it.id === id);
@@ -387,13 +420,14 @@ async function start() {
   resize();
 
   function applyCam() {
+    const tx = cam.tx + pan.x;
     const yaw = cam.yaw + user.yaw, pitch = THREE.MathUtils.clamp(cam.pitch + user.pitch, -0.05, 1.4), dist = cam.dist * user.zoom;
     camera.position.set(
-      cam.tx + Math.sin(yaw) * Math.cos(pitch) * dist,
+      tx + Math.sin(yaw) * Math.cos(pitch) * dist,
       cam.ty + Math.sin(pitch) * dist,
       cam.tz + Math.cos(yaw) * Math.cos(pitch) * dist);
     $('resetview').hidden = Math.abs(user.yaw) < 0.02 && Math.abs(user.pitch) < 0.02 && Math.abs(user.zoom - 1) < 0.02;
-    camera.lookAt(cam.tx, cam.ty, cam.tz);
+    camera.lookAt(tx, cam.ty, cam.tz);
     // shift the picture up when the card covers the bottom of the screen
     const w = renderer.domElement.width, h = renderer.domElement.height;
     if (Math.abs(cam.off) > 0.001) camera.setViewOffset(w, h, 0, h * cam.off, w, h); else camera.clearViewOffset();
@@ -460,7 +494,7 @@ async function start() {
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeSheets(true);
     const i = house.rooms.findIndex((r) => r.room.id === current);
-    const go = (id) => { goRoom(id); walkToRoom(id); };
+    const go = (id) => travel(id);
     if (e.key === 'ArrowRight' && i < house.rooms.length - 1) go(house.rooms[i + 1].room.id);
     if (e.key === 'ArrowLeft' && i > 0) go(house.rooms[i - 1].room.id);
   });
@@ -570,7 +604,7 @@ async function start() {
       const [a, b] = o.userData.door;
       const to = current === a ? b : a;
       closeSheets(true);
-      goRoom(to); walkToRoom(to);
+      travel(to);
       return;
     }
     if (o.userData.person) {
@@ -647,8 +681,9 @@ async function start() {
       for (const key of Object.keys(tween.to)) cam[key] = tween.from[key] + (tween.to[key] - tween.from[key]) * k;
       if (tween.t >= 1) tween = null;
     }
-    applyCam();
     stepWalker(dt, t);
+    stepPan(dt);
+    applyCam();
     for (let i = anims.length - 1; i >= 0; i--) if (anims[i](t)) anims.splice(i, 1);
     if (athenaP && !say.classList.contains('hidden')) {
       if (t > sayUntil) say.classList.add('hidden');
@@ -685,7 +720,7 @@ async function start() {
   requestAnimationFrame(frame);
   setTimeout(() => $('loader').classList.add('done'), 200);
   window.__ready = true;
-  window.__app = { focusItem, goRoom, itemObjs, camera, walkTo, touchTargets, touchThing, user, whatIs, walker, athena: athenaP && athenaP.obj, nav: floorMap, look: (x, y, z, d, yaw = 0, pitch = 0.15) => { tween = null; Object.assign(cam, { tx: x, ty: y, tz: z, dist: d, yaw, pitch, off: 0 }); } };
+  window.__app = { focusItem, goRoom, itemObjs, camera, walkTo, touchTargets, touchThing, user, whatIs, walker, athena: athenaP && athenaP.obj, pan, current: () => current, nav: floorMap, look: (x, y, z, d, yaw = 0, pitch = 0.15) => { tween = null; pan.x = 0; Object.assign(cam, { tx: x, ty: y, tz: z, dist: d, yaw, pitch, off: 0 }); } };
   // open an item straight from a link: ?item=glitter-unicorn
   const q = new URLSearchParams(location.search).get('item');
   if (q) setTimeout(() => focusItem(q), 400);
