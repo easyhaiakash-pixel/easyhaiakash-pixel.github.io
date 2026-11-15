@@ -88,6 +88,84 @@ function faceMesh(r, tex) {
   return m;
 }
 
+// ---------- Athena's outfits ----------
+// Each draws clothes on her body (skirt from y 0.17 up to the collar at 0.565) and returns the sleeve look.
+const POMS = ['#ff5f7a', '#ffd76a', '#6fc7ff', '#7fdc9c', '#b98cff', '#ff9a3c'];
+const lighter = (col, a) => '#' + new THREE.Color(col).lerp(new THREE.Color('#ffffff'), a).getHexString();
+const darker = (col, a) => '#' + new THREE.Color(col).lerp(new THREE.Color('#5a2a30'), a).getHexString();
+function tutuSkirt(k, c) {
+  k.add(G.lathe([[0, 0.38], [0.13, 0.38], [0.27, 0.2], [0.26, 0.17], [0, 0.17]], 30), lighter(c, 0.2));
+  k.add(G.lathe([[0, 0.39], [0.12, 0.39], [0.23, 0.25], [0.22, 0.23], [0, 0.23]], 30), lighter(c, 0.4), { line: false, p: [0, 0.01, 0] });
+  for (let i = 0; i < 16; i++) {
+    const a = (i / 16) * Math.PI * 2, h = ((i * 7) % 4) / 4, r = 0.268 - h * 0.1;
+    k.add(G.sph(0.019, 8, 6), POMS[i % POMS.length], { p: [Math.sin(a) * r, 0.19 + h * 0.15, Math.cos(a) * r], line: false });
+  }
+}
+function waistBow(k, c, y) {
+  k.at([0.05, y, 0.135], [0, 0, 0.2], () => {
+    for (const s of [-1, 1]) k.add(G.cone(0.035, 0.07, 12), c, { p: [s * 0.04, 0, 0], r: [0, 0, s * Math.PI / 2], s: [1, 1, 0.5], lw: 0.008 });
+    k.add(G.sph(0.018, 10, 8), darker(c, 0.12), { lw: 0.008 });
+  });
+}
+const OUTFITS = {
+  // her everyday cream dress with pink hem and white collar
+  home(k) {
+    k.add(G.lathe([[0, 0.17], [0.215, 0.175], [0.22, 0.205], [0.185, 0.33], [0.14, 0.47], [0.11, 0.55], [0, 0.565]]), '#fff1ea');
+    k.add(G.tor(0.205, 0.028, 8, 32), '#ffb3c8', { p: [0, 0.2, 0], r: [Math.PI / 2, 0, 0] });
+    k.add(G.tor(0.1, 0.03, 8, 24), '#ffffff', { p: [0, 0.545, 0], r: [Math.PI / 2, 0, 0] });
+    k.add(G.heart(0.035, 0.015), '#ff8fb0', { p: [0, 0.4, 0.165], r: [-0.25, 0, 0], lw: 0.008 });
+    return { col: '#fff1ea' };
+  },
+  // party frock: fitted top, big layered tutu skirt, satin bow
+  frock(k, c = '#9b1c2c') {
+    k.add(G.lathe([[0, 0.36], [0.135, 0.36], [0.125, 0.47], [0.105, 0.55], [0, 0.565]]), c);
+    [[0.29, 0.17, lighter(c, 0.12)], [0.25, 0.23, c], [0.2, 0.29, lighter(c, 0.06)]].forEach(([r, y, col]) =>
+      k.add(G.lathe([[0, y + 0.12], [0.12, y + 0.12], [r, y], [r * 0.96, y - 0.02], [0, y - 0.02]], 30), col));
+    for (let i = 0; i < 14; i++) { const a = (i / 14) * Math.PI * 2; k.add(G.sph(0.035, 10, 8), lighter(c, 0.3), { p: [Math.sin(a) * 0.28, 0.16, Math.cos(a) * 0.28], s: [1, 0.6, 1], line: false }); }
+    k.add(G.tor(0.13, 0.016, 6, 24), '#fff1f4', { p: [0, 0.37, 0], r: [Math.PI / 2, 0, 0], line: false });
+    waistBow(k, '#fff1f4', 0.38);
+    for (const s of [-1, 1]) k.add(G.sph(0.06, 12, 10), lighter(c, 0.12), { p: [s * 0.12, 0.52, 0], s: [1, 0.8, 0.9] });
+    return { col: c };
+  },
+  // knitted A-line dress with ribs, puff sleeves and a cream bow
+  knit(k, c = '#f7b8c8') {
+    k.add(G.lathe([[0, 0.17], [0.225, 0.175], [0.23, 0.2], [0.19, 0.33], [0.14, 0.47], [0.11, 0.55], [0, 0.565]]), c);
+    for (let i = 0; i < 5; i++) { const y = 0.22 + i * 0.06, r = 0.222 - i * 0.016; k.add(G.tor(r, 0.009, 6, 30), darker(c, 0.12), { p: [0, y, 0], r: [Math.PI / 2, 0, 0], line: false }); }
+    k.add(G.tor(0.222, 0.02, 8, 30), lighter(c, 0.45), { p: [0, 0.18, 0], r: [Math.PI / 2, 0, 0] });
+    k.add(G.tor(0.1, 0.028, 8, 24), '#fff3e2', { p: [0, 0.545, 0], r: [Math.PI / 2, 0, 0] });
+    k.at([0, 0.47, 0.14], [0, 0, 0], () => {
+      for (const s of [-1, 1]) k.add(G.cone(0.035, 0.07, 12), '#fff3e2', { p: [s * 0.04, 0, 0], r: [0, 0, s * Math.PI / 2], s: [1, 1, 0.5], lw: 0.008 });
+      k.add(G.sph(0.018, 10, 8), '#ffe3c6', { lw: 0.008 });
+    });
+    for (const s of [-1, 1]) k.add(G.sph(0.06, 12, 10), c, { p: [s * 0.12, 0.52, 0], s: [1, 0.8, 0.9] });
+    return { col: c };
+  },
+  // "Birthday Girl" white tee with a gold sash, pink pom-pom tutu
+  'tutu-set'(k, c = '#ff8fb8') {
+    tutuSkirt(k, c);
+    k.add(G.lathe([[0, 0.36], [0.15, 0.36], [0.14, 0.45], [0.11, 0.55], [0, 0.565]]), '#ffffff');
+    k.add(G.box(0.05, 0.26, 0.012, 0.005), '#ffd76a', { p: [0, 0.46, 0.13], r: [0.2, 0, 0.75], lw: 0.006 });
+    k.add(G.sph(0.03, 10, 8), '#ffd76a', { p: [0.08, 0.38, 0.14], lw: 0.007 });
+    return { col: '#ffffff' };
+  },
+  // pink ruffle-sleeve "The Birthday Girl" sweatshirt, tulle tutu with confetti pom-poms, bow
+  sweatshirt(k, c = '#f9b9c6') {
+    tutuSkirt(k, c);
+    k.add(G.lathe([[0, 0.35], [0.15, 0.35], [0.145, 0.45], [0.115, 0.55], [0, 0.565]]), c);
+    for (let i = 0; i < 7; i++) k.add(G.sph(0.015, 6, 6), POMS[i % 6], { p: [-0.072 + i * 0.024, 0.47 + Math.sin(i) * 0.008, 0.142 - Math.abs(i - 3) * 0.005], line: false });
+    for (let i = 0; i < 4; i++) k.add(G.sph(0.015, 6, 6), POMS[(i + 2) % 6], { p: [-0.036 + i * 0.024, 0.43, 0.148], line: false });
+    waistBow(k, c, 0.37);
+    for (const s of [-1, 1]) k.add(G.sph(0.06, 12, 10), lighter(c, 0.15), { p: [s * 0.13, 0.54, 0], s: [1.2, 0.55, 0.9] });
+    return { col: c, long: true, cuff: darker(c, 0.08) };
+  },
+};
+// which outfit a gift turns into (null = not something she can wear)
+export function outfitFor(it) {
+  if (it.model === 'dress') return { kind: it.variant === 'knit' ? 'knit' : 'frock', color: it.color };
+  if (it.model === 'outfit-set') return { kind: it.variant === 'sweatshirt' ? 'sweatshirt' : 'tutu-set', color: it.color };
+  return null;
+}
+
 // ---------- Athena, age 3 ----------
 export function buildAthena() {
   const root = new THREE.Group(); root.name = 'athena';
@@ -103,24 +181,36 @@ export function buildAthena() {
     l.add(G.sph(0.07, 16, 12), '#ffb7c9', { p: [s * 0.003, -0.175, 0.025], s: [0.95, 0.6, 1.25] });
     hip.add(l.build()); body.add(hip); legs.push(hip);
   }
-  // dress: cream bell with pink hem and white collar
-  k.add(G.lathe([[0, 0.17], [0.215, 0.175], [0.22, 0.205], [0.185, 0.33], [0.14, 0.47], [0.11, 0.55], [0, 0.565]]), '#fff1ea');
-  k.add(G.tor(0.205, 0.028, 8, 32), '#ffb3c8', { p: [0, 0.2, 0], r: [Math.PI / 2, 0, 0] });
-  k.add(G.tor(0.1, 0.03, 8, 24), '#ffffff', { p: [0, 0.545, 0], r: [Math.PI / 2, 0, 0] });
-  k.add(G.heart(0.035, 0.015), '#ff8fb0', { p: [0, 0.4, 0.165], r: [-0.25, 0, 0], lw: 0.008 });
-  body.add(k.build());
+  // clothes: her own cream dress, or a gifted outfit (see OUTFITS); root.userData.wear swaps them
+  const outfit = new THREE.Group(); outfit.name = 'outfit'; body.add(outfit);
 
-  // arms (pivot at shoulder so they can wave)
+  // arms (pivot at shoulder so they can wave); the sleeve is rebuilt with the outfit
   const arms = [];
   for (const s of [-1, 1]) {
     const pivot = new THREE.Group(); pivot.name = s < 0 ? 'armL' : 'armR'; pivot.position.set(s * 0.125, 0.5, 0);
     const a = new Kit(0.011);
-    a.add(G.cap(0.042, 0.13), '#fff1ea', { p: [0, -0.1, 0] });
     a.add(G.sph(0.05, 14, 10), SKIN, { p: [0, -0.2, 0.01] });
-    const m = a.build(); pivot.add(m);
+    pivot.add(a.build());
+    const sleeve = new THREE.Group(); sleeve.name = 'sleeve'; pivot.add(sleeve);
     pivot.rotation.z = s * 0.35;
     body.add(pivot); arms.push(pivot);
   }
+  const wear = (o) => {
+    const look = OUTFITS[o && o.kind] || OUTFITS.home;
+    for (const g of [outfit, ...arms.map((a) => a.getObjectByName('sleeve'))]) {
+      for (const c of [...g.children]) { g.remove(c); c.traverse((m) => { if (m.geometry) m.geometry.dispose(); }); }
+    }
+    const k = new Kit(0.012);
+    const sl = look(k, (o && o.color) || undefined);
+    outfit.add(k.build());
+    for (const a of arms) {
+      const sk = new Kit(0.011);
+      sk.add(G.cap(0.042, sl.long ? 0.16 : 0.13), sl.col, { p: [0, sl.long ? -0.11 : -0.1, 0] });
+      if (sl.cuff) sk.add(G.tor(0.04, 0.012, 6, 14), sl.cuff, { p: [0, -0.19, 0.005], r: [Math.PI / 2, 0, 0], line: false });
+      a.getObjectByName('sleeve').add(sk.build());
+    }
+  };
+  wear(null);
 
   // head
   const head = new THREE.Group(); head.name = 'head'; head.position.set(0, 0.6, 0); body.add(head);
@@ -196,6 +286,7 @@ export function buildAthena() {
   };
   const hop = makeHop(body);
   root.userData.hop = hop.start;
+  root.userData.wear = wear;
   return root;
 }
 

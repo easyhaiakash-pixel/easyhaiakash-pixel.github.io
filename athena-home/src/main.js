@@ -2,7 +2,7 @@
 import { THREE, sparkTex, blobTex } from './kit.js';
 import { buildHouse } from './rooms.js';
 import { buildItem, shadowBlob } from './items.js';
-import { buildPerson } from './people.js';
+import { buildPerson, outfitFor } from './people.js';
 import { buildNav } from './walk.js';
 
 const $ = (id) => document.getElementById(id);
@@ -65,6 +65,15 @@ function openCard(it) {
   lead.className = 'lead';
   lead.textContent = b.length ? (it.status === 'gifted' ? '💝 Get one for your little one' : '🎁 Gift it to Athena, or get one for your little one') : 'Shop link coming soon.';
   btns.replaceChildren(lead, ...b);
+  // gifted clothes: visitors can dress Athena in them
+  if (it.status === 'gifted' && outfitFor(it) && app) {
+    const on = app.wearing() === it.id;
+    const w = document.createElement('button');
+    w.className = 'wear';
+    w.textContent = on ? '👚 Back to her own dress' : '👗 Dress Athena in it!';
+    w.onclick = () => app.dressUp(on ? null : it.id);
+    btns.prepend(w);
+  }
   $('card').hidden = false;
   $('card').dataset.item = it.id;
 }
@@ -411,7 +420,35 @@ async function start() {
     openCard(e.it);
   }
   function unfocus() { if (focused) { focused = null; tweenTo(roomView(current), 0.8); } }
-  app = { focusItem, unfocus, goRoom };
+  // ----- dress-up: gifted clothes can be put on Athena (remembered on this phone) -----
+  let wearingId = null;
+  const OUTFIT_KEY = 'athena-outfit';
+  function putOn(id) {
+    const e = id && itemObjs.find((x) => x.it.id === id && x.it.status === 'gifted' && outfitFor(x.it));
+    wearingId = e ? id : null;
+    athenaP.obj.userData.wear(e ? outfitFor(e.it) : null);
+    try { if (wearingId) localStorage.setItem(OUTFIT_KEY, wearingId); else localStorage.removeItem(OUTFIT_KEY); } catch (err) { /* private mode */ }
+  }
+  function dressUp(id) {
+    if (!athenaP) return;
+    closeSheets(true);
+    const e = id && itemObjs.find((x) => x.it.id === id);
+    const change = () => {
+      athenaP.obj.userData.act('spin');
+      setTimeout(() => {
+        putOn(id);
+        popAt(athenaP.obj.getObjectByName('head'), id ? '💖' : '🌸');
+        speak(id ? 'I love my ' + e.it.name.toLowerCase() + '! 💖' : 'Back in my comfy dress! 🌸');
+      }, 420);
+    };
+    if (!e) return change();
+    // she walks to where the outfit hangs, then spins into it
+    const wp = e.g.getWorldPosition(new THREE.Vector3());
+    const b = floorMap.bounds;
+    walkTo(THREE.MathUtils.clamp(wp.x, b.x0, b.x1), THREE.MathUtils.clamp(wp.z + 0.55, b.z0, b.z1), { face: [wp.x, wp.z], follow: true, onArrive: change });
+  }
+  if (athenaP) { let saved = null; try { saved = localStorage.getItem(OUTFIT_KEY); } catch (err) { /* ignore */ } if (saved) putOn(saved); }
+  app = { focusItem, unfocus, goRoom, dressUp, wearing: () => wearingId };
 
   function resize() {
     const w = window.innerWidth, h = window.innerHeight;
@@ -725,7 +762,7 @@ async function start() {
   requestAnimationFrame(frame);
   setTimeout(() => $('loader').classList.add('done'), 200);
   window.__ready = true;
-  window.__app = { scene, focusItem, goRoom, itemObjs, camera, walkTo, touchTargets, touchThing, user, whatIs, walker, athena: athenaP && athenaP.obj, pan, current: () => current, nav: floorMap, look: (x, y, z, d, yaw = 0, pitch = 0.15) => { tween = null; pan.x = 0; Object.assign(cam, { tx: x, ty: y, tz: z, dist: d, yaw, pitch, off: 0 }); } };
+  window.__app = { scene, dressUp, wearing: () => wearingId, focusItem, goRoom, itemObjs, camera, walkTo, touchTargets, touchThing, user, whatIs, walker, athena: athenaP && athenaP.obj, pan, current: () => current, nav: floorMap, look: (x, y, z, d, yaw = 0, pitch = 0.15) => { tween = null; pan.x = 0; Object.assign(cam, { tx: x, ty: y, tz: z, dist: d, yaw, pitch, off: 0 }); } };
   // open an item straight from a link: ?item=glitter-unicorn
   const q = new URLSearchParams(location.search).get('item');
   if (q) setTimeout(() => focusItem(q), 400);
